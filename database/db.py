@@ -38,3 +38,13 @@ def save_to_db(data_list):
         print(f"[!] MySQL 저장 에러: {e}")
     finally:
         conn.close()
+
+def check_duplicate(data_key):
+    conn = get_connection()
+    try:
+        with conn.cursor() as cursor:
+            sql = "SELECT id FROM victims WHERE data_key = %s"
+            cursor.execute(sql, data_key)
+            return cursor.fetchone() is not None
+    finally:
+        conn.close()
