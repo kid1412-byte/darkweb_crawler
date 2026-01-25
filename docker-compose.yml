@@ -13,8 +13,9 @@ services:
 
   worker:
     build: .
-    container_name: celery-worker
     command: celery -A core.celery worker --loglevel=info
+    deploy:
+      replicas: 3
     depends_on:
       - redis
       - tor-proxy
