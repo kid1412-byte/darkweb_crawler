@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:alpine
+    container_name: redis-broker
+
+  tor-proxy:
+    image: dperson/torproxy
+    container_name: tor-proxy-container
+    ports:
+      - "49050:9050"
+
+  worker:
+    build: .
+    container_name: celery-worker
+    command: celery -A core.celery worker --loglevel=info
+    depends_on:
+      - redis
+      - tor-proxy
+    environment:
+      - PROXY_SERVER=${PROXY_SERVER}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}
+      - BASE_URL=${BASE_URL}
+      - PAGE_LOAD_TIMEOUT=${PAGE_LOAD_TIMEOUT}
+
+  beat:
+    build: .
+    container_name: celery-beat
+    command: celery -A core.celery beat --loglevel=info
+    depends_on:
+      - redis
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}

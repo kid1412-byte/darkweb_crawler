@@ -1,0 +1,9 @@
+celery
+redis
+selenium
+pymysql
+python-dotenv
+cryptography
+pycountry
+geopy
+geoip2
