@@ -44,36 +44,16 @@ class QilinScraper:
 
     def scrape_page(self, page_num):
         driver = self.browser_factory.get_driver()
-
         try:
             target_url = f"{self.base_url}?page={page_num}"
-            #target_url = "http://localhost:8000/index.html"
-            print(f"[*] 접속 중: {target_url}")
             driver.get(target_url)
             
-            # 다크웹 로딩 대기
             if not self._wait_content(driver):
-                print(f"[!] {page_num}페이지 로딩 타임아웃 (내용을 찾을 수 없음)")
-                return False
+                return {"data": [], "error": "timeout"}
             
             items = driver.find_elements(By.CLASS_NAME, "item_box")
-            if not items:
-                print(f"[-] {page_num}페이지에 게시글이 없습니다.")
-                return False
-            print(f"[+] 성공! {page_num}페이지에서 {len(items)}개의 게시글 발견")
+            data = [self._extract_data(item) for item in items]
             
-            for item in items:
-                data = self._extract_data(item)
-                #print(f"   - 발견된 기업: {data['company_name']}")
-                for pipe in self.pipelines:
-                    data = pipe.process(data)
-                    if data is None:
-                        return False
-                            
-                #print(data)
-            return True
-                    
-        except Exception as e:
-            return False
+            return {"data": data, "count": len(data)}
         finally:
             driver.quit()
