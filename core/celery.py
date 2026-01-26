@@ -10,9 +10,9 @@ app = Celery('darklight',
 app.conf.timezone = 'Asia/Seoul'
 
 app.conf.beat_schedule = {
-    'crawl-qilin-every-30min': {
-        'task': 'tasks.crawler.crawl_site_task',
-        'schedule': 1800.0,  # 1800초(30분)
-        'args': ('qilin', 1)  # 사이트 이름과 시작 페이지
+    'crawl-qilin-parallel-every-30min': {
+        'task': 'tasks.crawler.start_parallel_crawl', 
+        'schedule': 1800.0,
+        'args': ('qilin', 1, 2) 
     },
 }
